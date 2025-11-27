@@ -4,24 +4,16 @@
     "installCommand": "npm run install:all",
     "rewrites": [
         {
-            "source": "/teacher_dashboard",
-            "destination": "/teacher_dashboard/index.html"
+            "source": "/teacher/:path*",
+            "destination": "/teacher_dashboard/:path*"
         },
         {
-            "source": "/teacher_dashboard/:path*",
-            "destination": "/teacher_dashboard/index.html"
-        },
-        {
-            "source": "/admin_dashboard",
-            "destination": "/admin_dashboard/index.html"
-        },
-        {
-            "source": "/admin_dashboard/:path*",
-            "destination": "/admin_dashboard/index.html"
+            "source": "/admin/:path*",
+            "destination": "/admin_dashboard/:path*"
         },
         {
             "source": "/:path*",
-            "destination": "/admin_dashboard/index.html"
+            "destination": "/admin_dashboard"
         }
     ]
 }
