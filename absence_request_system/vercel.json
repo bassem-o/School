@@ -5,15 +5,23 @@
     "rewrites": [
         {
             "source": "/teacher_dashboard",
-            "destination": "/teacher/index.html"
+            "destination": "/teacher_dashboard/index.html"
         },
         {
             "source": "/teacher_dashboard/:path*",
-            "destination": "/teacher/index.html"
+            "destination": "/teacher_dashboard/index.html"
+        },
+        {
+            "source": "/admin_dashboard",
+            "destination": "/admin_dashboard/index.html"
+        },
+        {
+            "source": "/admin_dashboard/:path*",
+            "destination": "/admin_dashboard/index.html"
         },
         {
             "source": "/:path*",
-            "destination": "/index.html"
+            "destination": "/admin_dashboard/index.html"
         }
     ]
 }

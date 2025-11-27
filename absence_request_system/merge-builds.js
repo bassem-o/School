@@ -6,13 +6,17 @@ if (!fs.existsSync('dist')) {
     fs.mkdirSync('dist');
 }
 
-// Copy admin dashboard build to dist root
+// Copy admin dashboard build to dist/admin_dashboard
 console.log('Copying admin dashboard...');
-copyFolderRecursiveSync('admin_dashboard/dist', 'dist');
+const adminDest = 'dist/admin_dashboard';
+if (!fs.existsSync(adminDest)) {
+    fs.mkdirSync(adminDest, { recursive: true });
+}
+copyFolderRecursiveSync('admin_dashboard/dist', adminDest);
 
-// Copy teacher dashboard build to dist/teacher
+// Copy teacher dashboard build to dist/teacher_dashboard
 console.log('Copying teacher dashboard...');
-const teacherDest = 'dist/teacher';
+const teacherDest = 'dist/teacher_dashboard';
 if (!fs.existsSync(teacherDest)) {
     fs.mkdirSync(teacherDest, { recursive: true });
 }
