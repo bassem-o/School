@@ -1,0 +1,13 @@
+{
+    "name": "school-absence-system",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "install:admin": "cd admin_dashboard && npm install",
+        "install:teacher": "cd teacher_dashboard && npm install",
+        "install:all": "npm run install:admin && npm run install:teacher",
+        "build:admin": "cd admin_dashboard && npm run build",
+        "build:teacher": "cd teacher_dashboard && npm run build",
+        "build": "npm run build:admin && npm run build:teacher && node merge-builds.js"
+    }
+}

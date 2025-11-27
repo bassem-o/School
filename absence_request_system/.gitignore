@@ -25,6 +25,15 @@ admin_dashboard/dist/
 admin_dashboard/.vite/
 admin_dashboard/.cache/
 
+teacher_dashboard/node_modules/
+teacher_dashboard/dist/
+teacher_dashboard/.vite/
+teacher_dashboard/.cache/
+
+# Root build output
+dist/
+node_modules/
+
 # IDE
 .idea/
 .vscode/
