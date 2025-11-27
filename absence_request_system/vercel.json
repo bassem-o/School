@@ -4,11 +4,11 @@
     "installCommand": "npm run install:all",
     "rewrites": [
         {
-            "source": "/teacher",
+            "source": "/teacher_dashboard",
             "destination": "/teacher/index.html"
         },
         {
-            "source": "/teacher/:path*",
+            "source": "/teacher_dashboard/:path*",
             "destination": "/teacher/index.html"
         },
         {
