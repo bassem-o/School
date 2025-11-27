@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../services/supabaseClient'
 
-export function useRequests(initialStatus = null) {
+export function useRequests(initialStatus = null, initialLimit = 50) {
     const [requests, setRequests] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
     useEffect(() => {
-        fetchRequests(initialStatus)
+        fetchRequests(initialStatus, initialLimit)
 
         // Subscribe to real-time updates
         const channel = supabase
@@ -20,7 +20,7 @@ export function useRequests(initialStatus = null) {
                     table: 'absence_requests',
                 },
                 () => {
-                    fetchRequests(initialStatus)
+                    fetchRequests(initialStatus, initialLimit)
                 }
             )
             .subscribe()
@@ -30,24 +30,34 @@ export function useRequests(initialStatus = null) {
         }
     }, [])
 
-    async function fetchRequests(statusFilter = null) {
+    async function fetchRequests(statusFilter = null, limit = 50) {
         try {
             setLoading(true)
+            setError(null)
+
             let query = supabase
                 .from('absence_requests')
                 .select('*')
                 .order('date', { ascending: false })
+                .limit(limit)
 
             if (statusFilter) {
                 query = query.eq('status', statusFilter)
             }
 
-            const { data, error } = await query
+            // Create a timeout promise
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Request timed out. Please retry.')), 10000)
+            )
+
+            const { data, error } = await Promise.race([
+                query,
+                timeoutPromise
+            ])
 
             if (error) throw error
 
             setRequests(data)
-            setError(null)
         } catch (err) {
             setError(err.message)
             console.error('Error fetching requests:', err)

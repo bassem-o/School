@@ -2,7 +2,7 @@ import { useDelays } from '../hooks/useDelays'
 import { DelayCard } from './DelayCard'
 
 export function DelaysList() {
-    const { delays, loading, error, updateDelayStatus } = useDelays('pending')
+    const { delays, loading, error, updateDelayStatus, refetch } = useDelays('pending')
 
     const handleStatusChange = async (delayId, newStatus) => {
         const result = await updateDelayStatus(delayId, newStatus)
@@ -28,6 +28,13 @@ export function DelaysList() {
         return (
             <div className="error-container">
                 <p className="error-message">❌ حدث خطأ: {error}</p>
+                <button
+                    onClick={() => refetch('pending')}
+                    className="action-btn approve-btn"
+                    style={{ marginTop: '1rem', maxWidth: '200px' }}
+                >
+                    🔄 إعادة المحاولة
+                </button>
             </div>
         )
     }

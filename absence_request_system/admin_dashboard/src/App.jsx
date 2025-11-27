@@ -3,11 +3,12 @@ import { useAuth } from './hooks/useAuth'
 import { Login } from './components/Login'
 import { RequestsList } from './components/RequestsList'
 import { DelaysList } from './components/DelaysList'
+import { HistoryView } from './components/HistoryView'
 import './styles/App.css'
 
 function App() {
     const { isAuthenticated, isAdmin, loading, signIn, signOut, profile } = useAuth()
-    const [activeTab, setActiveTab] = useState('absence')
+    const [currentView, setCurrentView] = useState('home') // 'home', 'absence', 'delays', 'history'
 
     if (loading) {
         return (
@@ -23,6 +24,19 @@ function App() {
     }
 
     if (!isAdmin) {
+        // If it's a fallback profile (timeout), show loading/retrying instead of error
+        if (profile?.isFallback) {
+            return (
+                <div className="loading-container">
+                    <div className="spinner"></div>
+                    <p>جاري الاتصال بقاعدة البيانات...</p>
+                    <p className="sub-text" style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.5rem' }}>
+                        الاتصال بطيء، يرجى الانتظار...
+                    </p>
+                </div>
+            )
+        }
+
         return (
             <div className="error-container">
                 <div className="error-card">
@@ -36,6 +50,48 @@ function App() {
         )
     }
 
+    const renderContent = () => {
+        switch (currentView) {
+            case 'absence':
+                return <RequestsList />
+            case 'delays':
+                return <DelaysList />
+            case 'history':
+                return <HistoryView />
+            default:
+                return (
+                    <div className="home-menu">
+                        <button
+                            className="menu-card absence-card"
+                            onClick={() => setCurrentView('absence')}
+                        >
+                            <span className="menu-icon">📋</span>
+                            <h3>طلبات الغياب</h3>
+                            <p>مراجعة طلبات الغياب الجديدة</p>
+                        </button>
+
+                        <button
+                            className="menu-card delay-card"
+                            onClick={() => setCurrentView('delays')}
+                        >
+                            <span className="menu-icon">⏰</span>
+                            <h3>طلبات التأخير</h3>
+                            <p>مراجعة طلبات التأخير الجديدة</p>
+                        </button>
+
+                        <button
+                            className="menu-card history-card"
+                            onClick={() => setCurrentView('history')}
+                        >
+                            <span className="menu-icon">📜</span>
+                            <h3>السجل</h3>
+                            <p>عرض أرشيف جميع الطلبات</p>
+                        </button>
+                    </div>
+                )
+        }
+    }
+
     return (
         <div className="app">
             <header className="app-header">
@@ -44,29 +100,29 @@ function App() {
                         <h1>🏫 لوحة التحكم - نظام طلبات الغياب</h1>
                         <p className="welcome-text">مرحباً، {profile?.name || 'الإدارة'}</p>
                     </div>
-                    <button onClick={signOut} className="logout-button">
-                        تسجيل الخروج 🚪
-                    </button>
+                    <div className="header-actions">
+                        {currentView !== 'home' && (
+                            <button
+                                onClick={() => setCurrentView('home')}
+                                className="back-button"
+                                title="الرئيسية"
+                            >
+                                🏠
+                            </button>
+                        )}
+                        <button
+                            onClick={signOut}
+                            className="logout-button"
+                            title="تسجيل الخروج"
+                        >
+                            🚪
+                        </button>
+                    </div>
                 </div>
             </header>
 
             <main className="app-main">
-                <div className="tabs-container">
-                    <button
-                        className={`tab-button ${activeTab === 'absence' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('absence')}
-                    >
-                        📋 طلبات الغياب
-                    </button>
-                    <button
-                        className={`tab-button ${activeTab === 'delays' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('delays')}
-                    >
-                        ⏰ طلبات التأخير
-                    </button>
-                </div>
-
-                {activeTab === 'absence' ? <RequestsList /> : <DelaysList />}
+                {renderContent()}
             </main>
         </div>
     )

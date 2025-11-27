@@ -5,8 +5,8 @@ import { RequestCard } from './RequestCard'
 import { DelayCard } from './DelayCard'
 
 export function HistoryView() {
-    const { requests: absenceRequests, loading: loadingAbsence } = useRequests(null) // Fetch all
-    const { delays: delayRequests, loading: loadingDelays } = useDelays(null) // Fetch all
+    const { requests: absenceRequests, loading: loadingAbsence } = useRequests(null, 100) // Fetch last 100
+    const { delays: delayRequests, loading: loadingDelays } = useDelays(null, 100) // Fetch last 100
 
     const [typeFilter, setTypeFilter] = useState('all') // 'all', 'absence', 'delay'
     const [timeFilter, setTimeFilter] = useState('all') // 'all', 'D', 'W', 'M', 'Y'

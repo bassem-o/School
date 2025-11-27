@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../services/supabaseClient'
 
-export function useDelays(initialStatus = null) {
+export function useDelays(initialStatus = null, initialLimit = 50) {
     const [delays, setDelays] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
     useEffect(() => {
-        fetchDelays(initialStatus)
+        fetchDelays(initialStatus, initialLimit)
 
         // Subscribe to real-time updates
         const channel = supabase
@@ -20,7 +20,7 @@ export function useDelays(initialStatus = null) {
                     table: 'delay_requests',
                 },
                 () => {
-                    fetchDelays(initialStatus)
+                    fetchDelays(initialStatus, initialLimit)
                 }
             )
             .subscribe()
@@ -30,24 +30,34 @@ export function useDelays(initialStatus = null) {
         }
     }, [])
 
-    async function fetchDelays(statusFilter = null) {
+    async function fetchDelays(statusFilter = null, limit = 50) {
         try {
             setLoading(true)
+            setError(null)
+
             let query = supabase
                 .from('delay_requests')
                 .select('*')
                 .order('date', { ascending: false })
+                .limit(limit)
 
             if (statusFilter) {
                 query = query.eq('status', statusFilter)
             }
 
-            const { data, error } = await query
+            // Create a timeout promise
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Request timed out. Please retry.')), 10000)
+            )
+
+            const { data, error } = await Promise.race([
+                query,
+                timeoutPromise
+            ])
 
             if (error) throw error
 
             setDelays(data)
-            setError(null)
         } catch (err) {
             setError(err.message)
             console.error('Error fetching delays:', err)
