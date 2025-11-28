@@ -171,7 +171,7 @@ Directionality(
                               // textDirection is inherited from Directionality
                               decoration: InputDecoration(
                                 hintText: '••••••',
-                                contentPadding: const EdgeInsets.all(12),
+                                contentPadding: const EdgeInsets.fromLTRB(48, 12, 12, 12),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: const BorderSide(color: Color(0xFFDDDDDD), width: 2),

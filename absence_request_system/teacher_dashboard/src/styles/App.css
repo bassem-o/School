@@ -405,6 +405,10 @@ body {
   align-items: center;
 }
 
+.password-input input {
+  padding-left: 3rem;
+}
+
 .toggle-password {
   position: absolute;
   left: 10px;
