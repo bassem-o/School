@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import { useAuth } from './hooks/useAuth'
 import { Login } from './components/Login'
-import { RequestsList } from './components/RequestsList'
-import { DelaysList } from './components/DelaysList'
-import { HistoryView } from './components/HistoryView'
+import { TeacherHome } from './components/TeacherHome'
+import { SubmitAbsence } from './components/SubmitAbsence'
+import { SubmitDelay } from './components/SubmitDelay'
+import { MyRequests } from './components/MyRequests'
+import { MyDelays } from './components/MyDelays'
 import './styles/App.css'
 
 function App() {
     const { isAuthenticated, isTeacher, loading, signIn, signOut, profile } = useAuth()
-    const [currentView, setCurrentView] = useState('home') // 'home', 'absence', 'delays', 'history'
+    const [currentView, setCurrentView] = useState('home') // 'home', 'submit-absence', 'submit-delay', 'my-requests', 'my-delays'
 
     if (loading) {
         return (
@@ -52,78 +54,24 @@ function App() {
 
     const renderContent = () => {
         switch (currentView) {
-            case 'absence':
-                return <RequestsList />
-            case 'delays':
-                return <DelaysList />
-            case 'history':
-                return <HistoryView />
+            case 'submit-absence':
+                return <SubmitAbsence onBack={() => setCurrentView('home')} />
+            case 'submit-delay':
+                return <SubmitDelay onBack={() => setCurrentView('home')} />
+            case 'my-requests':
+                return <MyRequests onBack={() => setCurrentView('home')} />
+            case 'my-delays':
+                return <MyDelays onBack={() => setCurrentView('home')} />
             default:
                 return (
-                    <div className="home-menu">
-                        <button
-                            className="menu-card absence-card"
-                            onClick={() => setCurrentView('absence')}
-                        >
-                            <span className="menu-icon">📋</span>
-                            <h3>طلبات الغياب</h3>
-                            <p>تقديم طلب غياب جديد</p>
-                        </button>
-
-                        <button
-                            className="menu-card delay-card"
-                            onClick={() => setCurrentView('delays')}
-                        >
-                            <span className="menu-icon">⏰</span>
-                            <h3>طلبات التأخير</h3>
-                            <p>تقديم طلب تأخير جديد</p>
-                        </button>
-
-                        <button
-                            className="menu-card history-card"
-                            onClick={() => setCurrentView('history')}
-                        >
-                            <span className="menu-icon">📜</span>
-                            <h3>سجلي</h3>
-                            <p>عرض سجل طلباتي</p>
-                        </button>
-                    </div>
+                    <TeacherHome onViewChange={setCurrentView} onLogout={signOut} />
                 )
         }
     }
 
     return (
         <div className="app">
-            <header className="app-header">
-                <div className="header-content">
-                    <div className="header-title">
-                        <h1>🏫 لوحة المعلم - نظام طلبات الغياب</h1>
-                        <p className="welcome-text">مرحباً، {profile?.name || 'المعلم'}</p>
-                    </div>
-                    <div className="header-actions">
-                        {currentView !== 'home' && (
-                            <button
-                                onClick={() => setCurrentView('home')}
-                                className="back-button"
-                                title="الرئيسية"
-                            >
-                                🏠
-                            </button>
-                        )}
-                        <button
-                            onClick={signOut}
-                            className="logout-button"
-                            title="تسجيل الخروج"
-                        >
-                            🚪
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <main className="app-main">
-                {renderContent()}
-            </main>
+            {renderContent()}
         </div>
     )
 }

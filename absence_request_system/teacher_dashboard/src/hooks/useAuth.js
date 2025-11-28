@@ -11,7 +11,7 @@ export function useAuth() {
         const timeoutId = setTimeout(() => {
             setLoading(false)
             console.warn('Auth loading timed out, forcing render')
-        }, 5000)
+        }, 3000)
 
         // Check current session
         checkSession()
@@ -23,8 +23,7 @@ export function useAuth() {
                     console.log('Auth state change:', event, session?.user?.id)
                     if (session?.user) {
                         setUser(session.user)
-                        const userProfile = await authService.getUserProfile(session.user)
-                        setProfile(userProfile)
+                        setProfile(session.profile || null)
                     } else {
                         setUser(null)
                         setProfile(null)
@@ -47,17 +46,21 @@ export function useAuth() {
     async function checkSession() {
         try {
             console.log('checkSession: starting')
-            const session = await authService.getSession()
+            const session = authService.getSession()
             console.log('checkSession: session retrieved', session)
+
             if (session?.user) {
                 setUser(session.user)
-                console.log('checkSession: fetching profile')
-                const userProfile = await authService.getUserProfile(session.user)
-                console.log('checkSession: profile retrieved', userProfile)
-                setProfile(userProfile)
+                setProfile(session.profile || null)
+                console.log('checkSession: user and profile set')
+            } else {
+                setUser(null)
+                setProfile(null)
             }
         } catch (error) {
             console.error('Error checking session:', error)
+            setUser(null)
+            setProfile(null)
         } finally {
             console.log('checkSession: finished, setting loading false')
             setLoading(false)
@@ -66,7 +69,9 @@ export function useAuth() {
 
     async function signIn(username, password) {
         try {
-            await authService.signInWithUsername(username, password)
+            const result = await authService.signInWithUsername(username, password)
+            setUser(result.user)
+            setProfile(result.profile)
             return { success: true }
         } catch (error) {
             return { success: false, error: error.message }

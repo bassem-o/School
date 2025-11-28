@@ -31,7 +31,7 @@ export function Login({ onLogin }) {
                 <div className="login-header">
                     <div className="app-icon">🏫</div>
                     <h1>نظام طلبات الغياب</h1>
-                    <h2>لوحة التحكم - الإدارة</h2>
+                    <h2>تسجيل دخول المعلمين</h2>
                 </div>
 
                 <form onSubmit={handleSubmit} className="login-form">
@@ -48,7 +48,7 @@ export function Login({ onLogin }) {
                             type="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            placeholder="admin"
+                            placeholder="teacher"
                             disabled={loading}
                             dir="ltr"
                         />
