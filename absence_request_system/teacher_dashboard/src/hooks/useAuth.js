@@ -89,6 +89,7 @@ export function useAuth() {
         loading,
         isAuthenticated: !!user,
         isAdmin: profile?.role === 'admin',
+        isTeacher: profile?.role === 'teacher',
         signIn,
         signOut,
     }

@@ -7,7 +7,7 @@ import { HistoryView } from './components/HistoryView'
 import './styles/App.css'
 
 function App() {
-    const { isAuthenticated, isAdmin, loading, signIn, signOut, profile } = useAuth()
+    const { isAuthenticated, isTeacher, loading, signIn, signOut, profile } = useAuth()
     const [currentView, setCurrentView] = useState('home') // 'home', 'absence', 'delays', 'history'
 
     if (loading) {
@@ -23,7 +23,7 @@ function App() {
         return <Login onLogin={signIn} />
     }
 
-    if (!isAdmin) {
+    if (!isTeacher) {
         // If it's a fallback profile (timeout), show loading/retrying instead of error
         if (profile?.isFallback) {
             return (
@@ -41,7 +41,7 @@ function App() {
             <div className="error-container">
                 <div className="error-card">
                     <h2>⚠️ غير مصرح</h2>
-                    <p>هذه الصفحة مخصصة للإدارة فقط</p>
+                    <p>هذه الصفحة مخصصة للمعلمين فقط</p>
                     <button onClick={signOut} className="logout-button">
                         تسجيل الخروج
                     </button>
@@ -67,7 +67,7 @@ function App() {
                         >
                             <span className="menu-icon">📋</span>
                             <h3>طلبات الغياب</h3>
-                            <p>مراجعة طلبات الغياب الجديدة</p>
+                            <p>تقديم طلب غياب جديد</p>
                         </button>
 
                         <button
@@ -76,7 +76,7 @@ function App() {
                         >
                             <span className="menu-icon">⏰</span>
                             <h3>طلبات التأخير</h3>
-                            <p>مراجعة طلبات التأخير الجديدة</p>
+                            <p>تقديم طلب تأخير جديد</p>
                         </button>
 
                         <button
@@ -84,8 +84,8 @@ function App() {
                             onClick={() => setCurrentView('history')}
                         >
                             <span className="menu-icon">📜</span>
-                            <h3>السجل</h3>
-                            <p>عرض أرشيف جميع الطلبات</p>
+                            <h3>سجلي</h3>
+                            <p>عرض سجل طلباتي</p>
                         </button>
                     </div>
                 )
@@ -97,8 +97,8 @@ function App() {
             <header className="app-header">
                 <div className="header-content">
                     <div className="header-title">
-                        <h1>🏫 لوحة التحكم - نظام طلبات الغياب</h1>
-                        <p className="welcome-text">مرحباً، {profile?.name || 'الإدارة'}</p>
+                        <h1>🏫 لوحة المعلم - نظام طلبات الغياب</h1>
+                        <p className="welcome-text">مرحباً، {profile?.name || 'المعلم'}</p>
                     </div>
                     <div className="header-actions">
                         {currentView !== 'home' && (
