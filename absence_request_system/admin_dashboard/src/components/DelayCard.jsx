@@ -3,7 +3,7 @@ import { StatusBadge } from './StatusBadge'
 export function DelayCard({ delay, onStatusChange, readOnly = false }) {
     const formatDate = (dateString) => {
         const date = new Date(dateString)
-        return date.toLocaleString('ar-SA', {
+        return date.toLocaleString('ar-EG', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',

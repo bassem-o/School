@@ -27,14 +27,29 @@ export function HistoryView() {
             const now = new Date()
             data = data.filter(item => {
                 const itemDate = new Date(item.date)
-                const diffTime = Math.abs(now - itemDate)
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
                 switch (timeFilter) {
-                    case 'D': return diffDays <= 1
-                    case 'W': return diffDays <= 7
-                    case 'M': return diffDays <= 30
-                    case 'Y': return diffDays <= 365
+                    case 'D': {
+                        // Compare calendar dates (same day, month, year)
+                        return itemDate.getDate() === now.getDate() &&
+                            itemDate.getMonth() === now.getMonth() &&
+                            itemDate.getFullYear() === now.getFullYear()
+                    }
+                    case 'W': {
+                        const diffTime = Math.abs(now - itemDate)
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                        return diffDays <= 7
+                    }
+                    case 'M': {
+                        const diffTime = Math.abs(now - itemDate)
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                        return diffDays <= 30
+                    }
+                    case 'Y': {
+                        const diffTime = Math.abs(now - itemDate)
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                        return diffDays <= 365
+                    }
                     default: return true
                 }
             })
