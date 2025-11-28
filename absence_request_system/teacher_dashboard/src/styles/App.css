@@ -697,3 +697,23 @@ body {
     transform: translateY(0);
   }
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+  .info-box {
+    padding: 0.6rem;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    /* Try to keep on one line if possible, or let it wrap naturally but smaller */
+  }
+
+  .info-box p {
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .info-icon {
+    font-size: 1.2rem;
+  }
+}

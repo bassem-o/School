@@ -7,6 +7,7 @@ export function SubmitAbsence({ onBack }) {
     const [reason, setReason] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -20,7 +21,7 @@ export function SubmitAbsence({ onBack }) {
 
         try {
             await requestsService.submitRequest(user.id, profile.name, reason.trim());
-            onBack(); // Go back to home on success
+            setShowSuccessModal(true);
         } catch (err) {
             setError('فشل تقديم الطلب: ' + err.message);
             setIsSubmitting(false);
@@ -64,6 +65,26 @@ export function SubmitAbsence({ onBack }) {
                     </form>
                 </div>
             </div>
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="modal-overlay">
+                    <div className="modal-card">
+                        <span className="modal-icon" style={{ fontSize: '4rem' }}>✅</span>
+                        <h3 className="modal-title">تم بنجاح!</h3>
+                        <p className="modal-text">تم تقديم طلب الغياب بنجاح</p>
+                        <div className="modal-actions">
+                            <button
+                                className="btn-confirm"
+                                onClick={onBack}
+                                style={{ width: '100%' }}
+                            >
+                                حسناً
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

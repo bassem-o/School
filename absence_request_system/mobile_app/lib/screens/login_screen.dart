@@ -163,48 +163,54 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: !_isPasswordVisible,
+Directionality(
                             textDirection: TextDirection.ltr,
-                            decoration: InputDecoration(
-                              hintText: '••••••',
-                              contentPadding: const EdgeInsets.all(12),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: Color(0xFFDDDDDD), width: 2),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: Color(0xFFDDDDDD), width: 2),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: Color(0xFF667EEA), width: 2),
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _isPasswordVisible
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  color: Colors.grey,
+                            child: TextFormField(
+                              controller: _passwordController,
+                              obscureText: !_isPasswordVisible,
+                              // textDirection is inherited from Directionality
+                              decoration: InputDecoration(
+                                hintText: '••••••',
+                                contentPadding: const EdgeInsets.all(12),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(color: Color(0xFFDDDDDD), width: 2),
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    _isPasswordVisible = !_isPasswordVisible;
-                                  });
-                                },
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(color: Color(0xFFDDDDDD), width: 2),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(color: Color(0xFF667EEA), width: 2),
+                                ),
+                                prefixIcon: IconButton(
+                                  icon: Icon(
+                                    _isPasswordVisible
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: Colors.grey,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isPasswordVisible = !_isPasswordVisible;
+                                    });
+                                  },
+                                ),
+                                errorStyle: const TextStyle(
+                                  fontFamily: 'Segoe UI', // Ensure consistent font
+                                ),
                               ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'الرجاء إدخال كلمة المرور';
+                                }
+                                if (value.length < 6) {
+                                  return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                                }
+                                return null;
+                              },
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'الرجاء إدخال كلمة المرور';
-                              }
-                              if (value.length < 6) {
-                                return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
-                              }
-                              return null;
-                            },
                           ),
                         ],
                       ),

@@ -9,6 +9,7 @@ export function SubmitDelay({ onBack }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [teacherDetails, setTeacherDetails] = useState(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     useEffect(() => {
         // Load teacher details for subject/classes
@@ -17,7 +18,8 @@ export function SubmitDelay({ onBack }) {
                 const details = await requestsService.getTeacherDetails(user.id);
                 setTeacherDetails(details);
             } catch (err) {
-                setError('فشل تحميل بيانات المعلم');
+                // Silently fail or log to console, but don't show error to user as requested
+                console.log('Error loading teacher details:', err);
             }
         }
         loadDetails();
@@ -46,7 +48,7 @@ export function SubmitDelay({ onBack }) {
                 teacherDetails.classes,
                 reason.trim()
             );
-            onBack();
+            setShowSuccessModal(true);
         } catch (err) {
             setError('فشل تقديم الطلب: ' + err.message);
             setIsSubmitting(false);
@@ -90,6 +92,26 @@ export function SubmitDelay({ onBack }) {
                     </form>
                 </div>
             </div>
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="modal-overlay">
+                    <div className="modal-card">
+                        <span className="modal-icon" style={{ fontSize: '4rem' }}>✅</span>
+                        <h3 className="modal-title">تم بنجاح!</h3>
+                        <p className="modal-text">تم تقديم طلب التأخير بنجاح</p>
+                        <div className="modal-actions">
+                            <button
+                                className="btn-confirm"
+                                onClick={onBack}
+                                style={{ width: '100%' }}
+                            >
+                                حسناً
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
