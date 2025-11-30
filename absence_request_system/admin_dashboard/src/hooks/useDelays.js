@@ -66,11 +66,16 @@ export function useDelays(initialStatus = null, initialLimit = 50) {
         }
     }
 
-    async function updateDelayStatus(delayId, newStatus) {
+    async function updateDelayStatus(delayId, newStatus, minutes = null) {
         try {
+            const updates = { status: newStatus }
+            if (minutes !== null) {
+                updates.minutes = parseInt(minutes)
+            }
+
             const { error } = await supabase
                 .from('delay_requests')
-                .update({ status: newStatus })
+                .update(updates)
                 .eq('id', delayId)
 
             if (error) throw error
@@ -78,7 +83,7 @@ export function useDelays(initialStatus = null, initialLimit = 50) {
             // Optimistically update local state
             setDelays(prev =>
                 prev.map(delay =>
-                    delay.id === delayId ? { ...delay, status: newStatus } : delay
+                    delay.id === delayId ? { ...delay, ...updates } : delay
                 )
             )
 

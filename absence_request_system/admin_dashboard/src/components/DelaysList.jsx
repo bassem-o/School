@@ -4,8 +4,8 @@ import { DelayCard } from './DelayCard'
 export function DelaysList() {
     const { delays, loading, error, updateDelayStatus, refetch } = useDelays('pending')
 
-    const handleStatusChange = async (delayId, newStatus) => {
-        const result = await updateDelayStatus(delayId, newStatus)
+    const handleStatusChange = async (delayId, newStatus, minutes = null) => {
+        const result = await updateDelayStatus(delayId, newStatus, minutes)
 
         if (result.success) {
             // Success feedback could be added here

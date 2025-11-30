@@ -6,10 +6,11 @@ import { DelayCard } from './DelayCard'
 
 export function HistoryView() {
     const { requests: absenceRequests, loading: loadingAbsence } = useRequests(null, 100) // Fetch last 100
-    const { delays: delayRequests, loading: loadingDelays } = useDelays(null, 100) // Fetch last 100
+    const { delays: delayRequests, loading: loadingDelays, updateDelayStatus } = useDelays(null, 100) // Fetch last 100
 
     const [typeFilter, setTypeFilter] = useState('all') // 'all', 'absence', 'delay'
     const [timeFilter, setTimeFilter] = useState('all') // 'all', 'D', 'W', 'M', 'Y'
+    const [nameFilter, setNameFilter] = useState('')
 
     const filteredData = useMemo(() => {
         let data = []
@@ -22,7 +23,15 @@ export function HistoryView() {
             data = [...data, ...delayRequests.map(r => ({ ...r, type: 'delay' }))]
         }
 
-        // 2. Filter by Time
+        // 2. Filter by Name
+        if (nameFilter.trim()) {
+            const search = nameFilter.toLowerCase().trim()
+            data = data.filter(item =>
+                item.teacher_name && item.teacher_name.toLowerCase().includes(search)
+            )
+        }
+
+        // 3. Filter by Time
         if (timeFilter !== 'all') {
             const now = new Date()
             data = data.filter(item => {
@@ -57,7 +66,7 @@ export function HistoryView() {
 
         // Sort by date descending
         return data.sort((a, b) => new Date(b.date) - new Date(a.date))
-    }, [absenceRequests, delayRequests, typeFilter, timeFilter])
+    }, [absenceRequests, delayRequests, typeFilter, timeFilter, nameFilter])
 
     if (loadingAbsence || loadingDelays) {
         return <div className="loading-container"><div className="spinner"></div></div>
@@ -66,6 +75,16 @@ export function HistoryView() {
     return (
         <div className="history-view">
             <div className="filters-bar">
+                <div className="filter-group">
+                    <label>بحث بالاسم:</label>
+                    <input
+                        type="text"
+                        placeholder="اسم المعلم..."
+                        value={nameFilter}
+                        onChange={(e) => setNameFilter(e.target.value)}
+                    />
+                </div>
+
                 <div className="filter-group">
                     <label>نوع الطلب:</label>
                     <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
@@ -110,7 +129,14 @@ export function HistoryView() {
                         item.type === 'absence' ? (
                             <RequestCard key={`abs-${item.id}`} request={item} readOnly={true} />
                         ) : (
-                            <DelayCard key={`del-${item.id}`} delay={item} readOnly={true} />
+                            <DelayCard
+                                key={`del-${item.id}`}
+                                delay={item}
+                                readOnly={true}
+                                onStatusChange={async (id, status, minutes) => {
+                                    await updateDelayStatus(id, status || item.status, minutes)
+                                }}
+                            />
                         )
                     ))
                 )}
