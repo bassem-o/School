@@ -163,6 +163,18 @@ export function MyRequests({ onBack }) {
                                     </div>
                                 )}
 
+                                {/* Type */}
+                                <div className="card-row">
+                                    <div className="icon-circle" style={{ background: '#e1bee7' }}>
+                                        <span>🏷️</span>
+                                    </div>
+                                    <span className="card-text-bold">
+                                        النوع: <span style={{ fontWeight: 'normal', color: request.type ? '#333' : '#888' }}>
+                                            {request.type || 'غير محدد'}
+                                        </span>
+                                    </span>
+                                </div>
+
                                 {/* Reason */}
                                 <div className="reason-box">
                                     <div className="reason-header">

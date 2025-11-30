@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { requestsService } from '../services/requestsService';
 import { authService } from '../services/authService';
+import { AbsenceDaysIndicator } from './AbsenceDaysIndicator';
 
 export function TeacherHome({ onViewChange, onLogout }) {
     const { user, profile } = useAuth();
@@ -16,6 +17,7 @@ export function TeacherHome({ onViewChange, onLogout }) {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [pendingChanges, setPendingChanges] = useState(null);
     const [updating, setUpdating] = useState(false);
+    const [showZeroDaysWarning, setShowZeroDaysWarning] = useState(false);
 
     useEffect(() => {
         loadTeacherDetails();
@@ -195,16 +197,31 @@ export function TeacherHome({ onViewChange, onLogout }) {
                             ))}
                         </div>
                     )}
+
+                    {/* Absence Days Indicator */}
+                    {teacherDetails?.absence_left !== undefined && (
+                        <AbsenceDaysIndicator
+                            absenceLeft={teacherDetails.absence_left}
+                            isWarning={teacherDetails.absence_left === 0}
+                        />
+                    )}
                 </div>
 
                 {/* Actions Grid */}
                 <div className="actions-grid">
                     <button
-                        className="action-card gradient-blue"
-                        onClick={() => onViewChange('submit-absence')}
+                        className={`action-card gradient-blue ${teacherDetails?.absence_left === 0 ? 'warning-state' : ''}`}
+                        onClick={() => {
+                            if (teacherDetails?.absence_left === 0) {
+                                setShowZeroDaysWarning(true);
+                            } else {
+                                onViewChange('submit-absence');
+                            }
+                        }}
                     >
                         <span className="action-icon">📝</span>
                         <span className="action-label">تقديم طلب غياب</span>
+                        {teacherDetails?.absence_left === 0 && <span style={{ marginRight: '0.5rem' }}>⚠️</span>}
                     </button>
 
                     <button
@@ -340,6 +357,38 @@ export function TeacherHome({ onViewChange, onLogout }) {
                                 style={{ width: '100%' }}
                             >
                                 حسناً
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Zero Days Warning Modal */}
+            {showZeroDaysWarning && (
+                <div className="modal-overlay">
+                    <div className="modal-card">
+                        <span className="modal-icon" style={{ fontSize: '4rem' }}>⚠️</span>
+                        <h3 className="modal-title">تنبيه!</h3>
+                        <p className="modal-text">
+                            لقد استنفذت أيام الغياب المتاحة (0/7).<br />
+                            هل تريد المتابعة وتقديم طلب الغياب؟
+                        </p>
+                        <div className="modal-actions">
+                            <button
+                                className="btn-cancel"
+                                onClick={() => setShowZeroDaysWarning(false)}
+                            >
+                                إلغاء
+                            </button>
+                            <button
+                                className="btn-confirm"
+                                onClick={() => {
+                                    setShowZeroDaysWarning(false);
+                                    onViewChange('submit-absence');
+                                }}
+                                style={{ background: '#f44336' }}
+                            >
+                                متابعة
                             </button>
                         </div>
                     </div>

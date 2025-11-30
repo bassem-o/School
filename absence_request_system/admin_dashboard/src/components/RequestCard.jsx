@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { StatusBadge } from './StatusBadge'
+import { AbsenceDaysIndicator } from './AbsenceDaysIndicator'
+import { supabase } from '../services/supabaseClient'
 
 const ABSENCE_TYPES = [
     { value: '', label: 'اختر النوع...' },
@@ -13,11 +15,35 @@ export function RequestCard({ request, onStatusChange, readOnly = false }) {
     const [absenceType, setAbsenceType] = useState(request.type || '')
     const [showConfirm, setShowConfirm] = useState(false)
     const [isEditingHistory, setIsEditingHistory] = useState(false)
+    const [teacherDetails, setTeacherDetails] = useState(null)
 
     // Update local state if prop changes (e.g. after save)
     useEffect(() => {
         setAbsenceType(request.type || '')
     }, [request.type])
+
+    // Fetch teacher details to get absence_left
+    useEffect(() => {
+        async function fetchTeacherDetails() {
+            try {
+                const { data, error } = await supabase
+                    .from('teachers')
+                    .select('absence_left')
+                    .eq('user_id', request.teacher_id)
+                    .single()
+
+                if (!error && data) {
+                    setTeacherDetails(data)
+                }
+            } catch (err) {
+                console.error('Error fetching teacher details:', err)
+            }
+        }
+
+        if (request.teacher_id) {
+            fetchTeacherDetails()
+        }
+    }, [request.teacher_id])
 
     const formatDate = (dateString) => {
         const date = new Date(dateString)
@@ -50,8 +76,20 @@ export function RequestCard({ request, onStatusChange, readOnly = false }) {
         }
     }
 
+    const hasZeroDays = teacherDetails?.absence_left === 0
+
     return (
-        <div className="request-card" style={{ position: 'relative', overflow: 'hidden' }}>
+        <div
+            className="request-card"
+            style={{
+                position: 'relative',
+                overflow: 'hidden',
+                ...(hasZeroDays && !readOnly ? {
+                    border: '2px solid #f44336',
+                    boxShadow: '0 0 15px rgba(244, 67, 54, 0.4)'
+                } : {})
+            }}
+        >
             {showConfirm && (
                 <div className="confirm-overlay" style={{
                     position: 'absolute',
@@ -119,6 +157,16 @@ export function RequestCard({ request, onStatusChange, readOnly = false }) {
                     <span className="field-label">السبب:</span>
                     <span className="field-value">{request.reason}</span>
                 </div>
+
+                {/* Absence Days Indicator */}
+                {teacherDetails?.absence_left !== undefined && (
+                    <div className="request-field" style={{ flexDirection: 'column', alignItems: 'center', marginTop: '1rem' }}>
+                        <AbsenceDaysIndicator
+                            absenceLeft={teacherDetails.absence_left}
+                            isWarning={teacherDetails.absence_left === 0}
+                        />
+                    </div>
+                )}
 
                 {/* History View Logic */}
                 {(readOnly && request.status === 'approved') && (
