@@ -4,8 +4,8 @@ import { RequestCard } from './RequestCard'
 export function RequestsList() {
     const { requests, loading, error, updateRequestStatus, refetch } = useRequests('pending')
 
-    const handleStatusChange = async (requestId, newStatus) => {
-        const result = await updateRequestStatus(requestId, newStatus)
+    const handleStatusChange = async (requestId, newStatus, type = null) => {
+        const result = await updateRequestStatus(requestId, newStatus, type)
 
         if (result.success) {
             // Success feedback could be added here

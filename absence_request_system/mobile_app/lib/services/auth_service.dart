@@ -4,46 +4,33 @@ import '../models/user_model.dart';
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  // Get current user
-  User? get currentUser => _supabase.auth.currentUser;
-
-  // Check if user is logged in
-  bool get isLoggedIn => currentUser != null;
-
   // Sign in with username and password
-  Future<AuthResponse> signIn({
+  Future<UserModel> signIn({
     required String username,
     required String password,
   }) async {
-    // 1. Query Supabase to find email for the username
+    // Query users table directly
     final response = await _supabase
         .from('users')
-        .select('email')
+        .select()
         .eq('username', username)
+        .eq('password', password)
         .maybeSingle();
 
     if (response == null) {
-      throw const AuthException('المستخدم غير موجود');
+      throw const AuthException('اسم المستخدم أو كلمة المرور غير صحيحة');
     }
 
-    final email = response['email'] as String;
-
-    // 2. Authenticate using email and password
-    return await _supabase.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+    return UserModel.fromJson(response);
   }
 
-  // Get user profile from users table
-  Future<UserModel?> getUserProfile() async {
-    if (!isLoggedIn) return null;
-
+  // Get user profile by ID
+  Future<UserModel?> getUserProfile(String userId) async {
     try {
       final response = await _supabase
           .from('users')
           .select()
-          .eq('id', currentUser!.id)
+          .eq('id', userId)
           .single();
 
       return UserModel.fromJson(response);
@@ -54,9 +41,9 @@ class AuthService {
 
   // Sign out
   Future<void> signOut() async {
-    await _supabase.auth.signOut();
+    // No Supabase Auth session to clear, but we might want to clear local storage if we used it here.
+    // However, storage is managed by AuthProvider usually.
+    // We can still call signOut just in case, but it won't do much for our custom auth.
+    // await _supabase.auth.signOut(); 
   }
-
-  // Listen to auth state changes
-  Stream<AuthState> get authStateChanges => _supabase.auth.onAuthStateChange;
 }

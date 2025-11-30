@@ -66,11 +66,16 @@ export function useRequests(initialStatus = null, initialLimit = 50) {
         }
     }
 
-    async function updateRequestStatus(requestId, newStatus) {
+    async function updateRequestStatus(requestId, newStatus, type = null) {
         try {
+            const updates = { status: newStatus }
+            if (type !== null) {
+                updates.type = type
+            }
+
             const { error } = await supabase
                 .from('absence_requests')
-                .update({ status: newStatus })
+                .update(updates)
                 .eq('id', requestId)
 
             if (error) throw error
@@ -78,7 +83,7 @@ export function useRequests(initialStatus = null, initialLimit = 50) {
             // Optimistically update local state
             setRequests(prev =>
                 prev.map(req =>
-                    req.id === requestId ? { ...req, status: newStatus } : req
+                    req.id === requestId ? { ...req, ...updates } : req
                 )
             )
 

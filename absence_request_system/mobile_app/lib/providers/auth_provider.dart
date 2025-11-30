@@ -26,8 +26,7 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      await _authService.signIn(username: username, password: password);
-      await loadUserProfile();
+      _currentUser = await _authService.signIn(username: username, password: password);
       _isLoading = false;
       notifyListeners();
       return true;
@@ -44,9 +43,14 @@ class AuthProvider with ChangeNotifier {
 
   // Load user profile
   Future<void> loadUserProfile() async {
+    if (_currentUser == null) return;
+
     try {
-      _currentUser = await _authService.getUserProfile();
-      notifyListeners();
+      final updatedUser = await _authService.getUserProfile(_currentUser!.id);
+      if (updatedUser != null) {
+        _currentUser = updatedUser;
+        notifyListeners();
+      }
     } catch (e) {
       _errorMessage = e.toString();
       notifyListeners();

@@ -24,24 +24,6 @@ export const authService = {
 
         console.log('signInWithUsername: Database login successful', user.id)
 
-        // 2. Sign in to Supabase Auth (Required for RLS)
-        try {
-            const { error: authError } = await supabase.auth.signInWithPassword({
-                email: user.email,
-                password: password
-            })
-
-            if (authError) {
-                console.warn('signInWithUsername: Supabase Auth login failed (possible password desync)', authError)
-                // We don't throw here because we want to allow login if DB check passed,
-                // BUT RLS might fail. We'll proceed and let the user know if data doesn't load.
-            } else {
-                console.log('signInWithUsername: Supabase Auth login successful')
-            }
-        } catch (err) {
-            console.error('signInWithUsername: Error during Supabase Auth sign in', err)
-        }
-
         // Store session in localStorage
         const sessionData = {
             user: {
@@ -111,24 +93,6 @@ export const authService = {
         }
 
         console.log('updateCredentials: Database update successful', data)
-
-        // 2. Update Supabase Auth (if password changed)
-        if (newPassword) {
-            try {
-                const { error: authError } = await supabase.auth.updateUser({
-                    password: newPassword
-                })
-
-                if (authError) {
-                    console.error('updateCredentials: Failed to update Supabase Auth password', authError)
-                    // We log but don't throw, as the primary DB update succeeded
-                } else {
-                    console.log('updateCredentials: Supabase Auth password updated')
-                }
-            } catch (err) {
-                console.error('updateCredentials: Error updating Supabase Auth', err)
-            }
-        }
 
         // Update session with new profile data
         const currentSession = this.getSession()
@@ -201,8 +165,6 @@ export const authService = {
     async signOut() {
         console.log('signOut: Clearing session')
         localStorage.removeItem(SESSION_KEY)
-        // Also sign out from Supabase Auth
-        await supabase.auth.signOut()
     },
 
     // Get current session
