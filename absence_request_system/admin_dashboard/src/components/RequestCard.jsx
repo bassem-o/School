@@ -160,7 +160,9 @@ export function RequestCard({ request, onStatusChange, readOnly = false }) {
 
                 {/* Absence Days Indicator */}
                 {teacherDetails?.absence_left !== undefined && (
-                    <div className="request-field" style={{ flexDirection: 'column', alignItems: 'center', marginTop: '1rem' }}>
+                    <div className="request-field" style={{ alignItems: 'center' }}>
+                        <span className="field-icon">💚</span>
+                        <span className="field-label">المتبقي:</span>
                         <AbsenceDaysIndicator
                             absenceLeft={teacherDetails.absence_left}
                             isWarning={teacherDetails.absence_left === 0}
