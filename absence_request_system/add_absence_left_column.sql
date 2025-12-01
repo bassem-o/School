@@ -9,8 +9,8 @@ ADD COLUMN IF NOT EXISTS absence_left INTEGER NOT NULL DEFAULT 7;
 CREATE OR REPLACE FUNCTION decrement_absence_days()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Only decrement if status changed from 'pending' to 'approved'
-    IF OLD.status = 'pending' AND NEW.status = 'approved' THEN
+    -- Only decrement if status changed from 'pending' to 'approved' AND type is 'عارضة'
+    IF OLD.status = 'pending' AND NEW.status = 'approved' AND NEW.type = 'عارضة' THEN
         -- Decrement the teacher's absence_left by 1 (but don't go below 0)
         UPDATE teachers
         SET absence_left = GREATEST(absence_left - 1, 0)

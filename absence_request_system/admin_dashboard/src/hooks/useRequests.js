@@ -68,7 +68,10 @@ export function useRequests(initialStatus = null, initialLimit = 50) {
 
     async function updateRequestStatus(requestId, newStatus, type = null) {
         try {
-            const updates = { status: newStatus }
+            const updates = {}
+            if (newStatus !== null) {
+                updates.status = newStatus
+            }
             if (type !== null) {
                 updates.type = type
             }
