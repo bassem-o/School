@@ -3,12 +3,16 @@ import { StatusBadge } from './StatusBadge'
 
 export function DelayCard({ delay, onStatusChange, readOnly = false }) {
     const [minutes, setMinutes] = useState(delay.minutes || '')
+    const [delayType, setDelayType] = useState(
+        delay.minutes === 'اذن يومى' ? 'اذن' : 'دقائق'
+    )
     const [showConfirm, setShowConfirm] = useState(false)
     const [isEditingHistory, setIsEditingHistory] = useState(false)
 
     // Update local state if prop changes (e.g. after save)
     useEffect(() => {
         setMinutes(delay.minutes || '')
+        setDelayType(delay.minutes === 'اذن يومى' ? 'اذن' : 'دقائق')
     }, [delay.minutes])
 
     const formatDate = (dateString) => {
@@ -23,7 +27,10 @@ export function DelayCard({ delay, onStatusChange, readOnly = false }) {
     }
 
     const handleApproveClick = () => {
-        if (!minutes || isNaN(minutes) || minutes <= 0) {
+        // If type is "اذن", use "اذن يومى" as the value
+        if (delayType === 'اذن') {
+            onStatusChange(delay.id, 'approved', 'اذن يومى')
+        } else if (!minutes || isNaN(minutes) || minutes <= 0) {
             setShowConfirm(true)
         } else {
             onStatusChange(delay.id, 'approved', minutes)
@@ -32,13 +39,24 @@ export function DelayCard({ delay, onStatusChange, readOnly = false }) {
 
     const handleConfirmApprove = () => {
         setShowConfirm(false)
-        onStatusChange(delay.id, 'approved', minutes || 0)
+        onStatusChange(delay.id, 'approved', delayType === 'اذن' ? 'اذن يومى' : (minutes || 0))
     }
 
     const handleHistoryUpdate = () => {
         if (onStatusChange) {
-            onStatusChange(delay.id, null, minutes) // null status means keep existing
+            const value = delayType === 'اذن' ? 'اذن يومى' : minutes
+            onStatusChange(delay.id, null, value) // null status means keep existing
             setIsEditingHistory(false)
+        }
+    }
+
+    const handleDelayTypeChange = (newType) => {
+        setDelayType(newType)
+        setIsEditingHistory(true)
+        if (newType === 'اذن') {
+            setMinutes('اذن يومى')
+        } else if (minutes === 'اذن يومى') {
+            setMinutes('')
         }
     }
 
@@ -115,25 +133,55 @@ export function DelayCard({ delay, onStatusChange, readOnly = false }) {
                 {/* History View Logic */}
                 {(readOnly && delay.status === 'approved') && (
                     <div className="request-field" style={{ alignItems: 'center' }}>
-                        <span className="field-icon">⏱️</span>
-                        <span className="field-label">المدة (د):</span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <input
-                                type="number"
-                                min="0"
-                                value={minutes}
-                                onChange={(e) => {
-                                    setMinutes(e.target.value)
-                                    setIsEditingHistory(true)
-                                }}
+                        <span className="field-icon">📋</span>
+                        <span className="field-label">النوع:</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            <select
+                                value={delayType}
+                                onChange={(e) => handleDelayTypeChange(e.target.value)}
                                 style={{
                                     padding: '0.25rem 0.5rem',
                                     border: '1px solid #ddd',
                                     borderRadius: '4px',
-                                    width: '70px',
-                                    fontSize: '0.9rem'
+                                    fontSize: '0.9rem',
+                                    background: 'white',
+                                    cursor: 'pointer'
                                 }}
-                            />
+                            >
+                                <option value="دقائق">دقائق</option>
+                                <option value="اذن">اذن</option>
+                            </select>
+
+                            {delayType === 'اذن' ? (
+                                <span style={{
+                                    color: '#10b981',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.95rem'
+                                }}>
+                                    اذن يومى
+                                </span>
+                            ) : (
+                                <>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={minutes === 'اذن يومى' ? '' : minutes}
+                                        onChange={(e) => {
+                                            setMinutes(e.target.value)
+                                            setIsEditingHistory(true)
+                                        }}
+                                        style={{
+                                            padding: '0.25rem 0.5rem',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '4px',
+                                            width: '70px',
+                                            fontSize: '0.9rem'
+                                        }}
+                                    />
+                                    <span style={{ fontSize: '0.85rem', color: '#666' }}>دقيقة</span>
+                                </>
+                            )}
+
                             {isEditingHistory && (
                                 <button
                                     onClick={handleHistoryUpdate}
@@ -157,22 +205,58 @@ export function DelayCard({ delay, onStatusChange, readOnly = false }) {
                 {/* Pending View Logic */}
                 {!readOnly && (
                     <div className="request-field" style={{ alignItems: 'center' }}>
-                        <span className="field-icon">⏱️</span>
-                        <span className="field-label">المدة (د):</span>
-                        <input
-                            type="number"
-                            min="0"
-                            placeholder="0"
-                            value={minutes}
-                            onChange={(e) => setMinutes(e.target.value)}
-                            style={{
-                                padding: '0.25rem 0.5rem',
-                                border: '1px solid #ddd',
-                                borderRadius: '4px',
-                                width: '80px',
-                                fontSize: '0.9rem'
-                            }}
-                        />
+                        <span className="field-icon">📋</span>
+                        <span className="field-label">النوع:</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            <select
+                                value={delayType}
+                                onChange={(e) => {
+                                    const newType = e.target.value
+                                    setDelayType(newType)
+                                    if (newType === 'اذن') {
+                                        setMinutes('اذن يومى')
+                                    } else if (minutes === 'اذن يومى') {
+                                        setMinutes('')
+                                    }
+                                }}
+                                style={{
+                                    padding: '0.25rem 0.5rem',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '4px',
+                                    fontSize: '0.9rem',
+                                    background: 'white',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <option value="دقائق">دقائق</option>
+                                <option value="اذن">اذن</option>
+                            </select>
+
+                            {delayType === 'اذن' ? (
+                                <span style={{
+                                    color: '#10b981',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.95rem'
+                                }}>
+                                    اذن يومى
+                                </span>
+                            ) : (
+                                <input
+                                    type="number"
+                                    min="0"
+                                    placeholder="0"
+                                    value={minutes === 'اذن يومى' ? '' : minutes}
+                                    onChange={(e) => setMinutes(e.target.value)}
+                                    style={{
+                                        padding: '0.25rem 0.5rem',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px',
+                                        width: '80px',
+                                        fontSize: '0.9rem'
+                                    }}
+                                />
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

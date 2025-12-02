@@ -163,6 +163,29 @@ export function MyDelays({ onBack }) {
                                     </div>
                                 )}
 
+
+                                {/* Duration/Type - Only show for approved delays */}
+                                {delay.status === 'approved' && delay.minutes && (
+                                    <div className="card-row">
+                                        <div className="icon-circle purple">
+                                            <span>⏱️</span>
+                                        </div>
+                                        {delay.minutes === 'اذن يومى' ? (
+                                            <span style={{
+                                                color: '#10b981',
+                                                fontWeight: 'bold',
+                                                fontSize: '1rem'
+                                            }}>
+                                                اذن يومى
+                                            </span>
+                                        ) : (
+                                            <span className="card-text-bold">
+                                                {delay.minutes} دقيقة
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+
                                 {/* Reason */}
                                 <div className="reason-box">
                                     <div className="reason-header">

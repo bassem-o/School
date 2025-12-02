@@ -70,7 +70,8 @@ export function useDelays(initialStatus = null, initialLimit = 50) {
         try {
             const updates = { status: newStatus }
             if (minutes !== null) {
-                updates.minutes = parseInt(minutes)
+                // Store as-is to support both numeric and text values like "اذن يومى"
+                updates.minutes = minutes
             }
 
             const { error } = await supabase
