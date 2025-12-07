@@ -5,13 +5,22 @@ import { RequestCard } from './RequestCard'
 import { DelayCard } from './DelayCard'
 
 export function HistoryView() {
-    const { requests: absenceRequests, loading: loadingAbsence, updateRequestStatus } = useRequests(null, 100) // Fetch last 100
+    const { requests: absenceRequests, loading: loadingAbsence, updateRequestStatus, deleteRequest } = useRequests(null, 100) // Fetch last 100
     const { delays: delayRequests, loading: loadingDelays, updateDelayStatus } = useDelays(null, 100) // Fetch last 100
 
     const [typeFilter, setTypeFilter] = useState('all') // 'all', 'absence', 'delay'
     const [timeFilter, setTimeFilter] = useState('all') // 'all', 'D', 'W', 'M', 'Y'
     const [nameFilter, setNameFilter] = useState('')
-    const [absenceTypeFilter, setAbsenceTypeFilter] = useState('all') // 'all', 'عارضة', 'اعتيادى', 'مرضى', 'اخرى'
+    const [absenceTypeFilter, setAbsenceTypeFilter] = useState('all') // 'all', 'عارضة', 'اعتيادى', 'مرضى', 'اخرى', 'خصم'
+
+    const handleDelete = async (requestId) => {
+        const result = await deleteRequest(requestId)
+        if (result.success) {
+            console.log('Request deleted successfully')
+        } else {
+            alert('فشل حذف الطلب: ' + result.error)
+        }
+    }
 
     const filteredData = useMemo(() => {
         let data = []
@@ -109,6 +118,7 @@ export function HistoryView() {
                         <option value="عارضة">عارضة</option>
                         <option value="اعتيادى">اعتيادى</option>
                         <option value="مرضى">مرضى</option>
+                        <option value="خصم">خصم</option>
                         <option value="اخرى">اخرى</option>
                     </select>
                 </div>
@@ -153,6 +163,7 @@ export function HistoryView() {
                                 onStatusChange={async (id, status, type) => {
                                     await updateRequestStatus(id, status || item.status, type)
                                 }}
+                                onDelete={handleDelete}
                             />
                         ) : (
                             <DelayCard

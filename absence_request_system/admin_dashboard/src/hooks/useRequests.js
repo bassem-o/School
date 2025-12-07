@@ -96,11 +96,30 @@ export function useRequests(initialStatus = null, initialLimit = 50) {
         }
     }
 
+    async function deleteRequest(requestId) {
+        try {
+            const { error } = await supabase
+                .from('absence_requests')
+                .delete()
+                .eq('id', requestId)
+
+            if (error) throw error
+
+            // Optimistically update local state
+            setRequests(prev => prev.filter(req => req.id !== requestId))
+
+            return { success: true }
+        } catch (err) {
+            return { success: false, error: err.message }
+        }
+    }
+
     return {
         requests,
         loading,
         error,
         updateRequestStatus,
+        deleteRequest,
         refetch: fetchRequests,
     }
 }

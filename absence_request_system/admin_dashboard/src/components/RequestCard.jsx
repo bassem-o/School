@@ -8,12 +8,14 @@ const ABSENCE_TYPES = [
     { value: 'عارضة', label: 'عارضة' },
     { value: 'اعتيادى', label: 'اعتيادى' },
     { value: 'مرضى', label: 'مرضى' },
+    { value: 'خصم', label: 'خصم' },
     { value: 'اخرى', label: 'اخرى' }
 ]
 
-export function RequestCard({ request, onStatusChange, readOnly = false }) {
+export function RequestCard({ request, onStatusChange, onDelete, readOnly = false }) {
     const [absenceType, setAbsenceType] = useState(request.type || '')
     const [showConfirm, setShowConfirm] = useState(false)
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
     const [isEditingHistory, setIsEditingHistory] = useState(false)
     const [teacherDetails, setTeacherDetails] = useState(null)
 
@@ -76,6 +78,17 @@ export function RequestCard({ request, onStatusChange, readOnly = false }) {
         }
     }
 
+    const handleDeleteClick = () => {
+        setShowDeleteConfirm(true)
+    }
+
+    const handleConfirmDelete = async () => {
+        setShowDeleteConfirm(false)
+        if (onDelete) {
+            await onDelete(request.id)
+        }
+    }
+
     const hasZeroDays = teacherDetails?.absence_left === 0
 
     return (
@@ -128,9 +141,81 @@ export function RequestCard({ request, onStatusChange, readOnly = false }) {
                 </div>
             )}
 
+            {showDeleteConfirm && (
+                <div className="confirm-overlay" style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(255,255,255,0.95)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10,
+                    padding: '1rem',
+                    textAlign: 'center'
+                }}>
+                    <p style={{ marginBottom: '1rem', fontWeight: 'bold', color: '#c53030' }}>
+                        هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button
+                            onClick={handleConfirmDelete}
+                            className="action-btn reject-btn"
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+                        >
+                            نعم، احذف
+                        </button>
+                        <button
+                            onClick={() => setShowDeleteConfirm(false)}
+                            className="action-btn"
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', background: '#edf2f7', color: '#4a5568' }}
+                        >
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {onDelete && (
+                <button
+                    onClick={handleDeleteClick}
+                    style={{
+                        position: 'absolute',
+                        top: '0.75rem',
+                        left: '0.5rem',
+                        background: '#ffebee',
+                        border: 'none',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        transition: 'all 0.2s',
+                        zIndex: 5
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#ffcdd2'
+                        e.currentTarget.style.transform = 'scale(1.1)'
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#ffebee'
+                        e.currentTarget.style.transform = 'scale(1)'
+                    }}
+                    title="حذف الطلب"
+                >
+                    🗑️
+                </button>
+            )}
+
             <div className="request-header">
                 <StatusBadge status={request.status} />
-                <span className="request-date">{formatDate(request.date)}</span>
+                <span className="request-date" style={{ paddingLeft: '2.5rem' }}>{formatDate(request.date)}</span>
             </div>
 
             <div className="request-body">

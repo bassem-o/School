@@ -2,7 +2,7 @@ import { useRequests } from '../hooks/useRequests'
 import { RequestCard } from './RequestCard'
 
 export function RequestsList() {
-    const { requests, loading, error, updateRequestStatus, refetch } = useRequests('pending')
+    const { requests, loading, error, updateRequestStatus, deleteRequest, refetch } = useRequests('pending')
 
     const handleStatusChange = async (requestId, newStatus, type = null) => {
         const result = await updateRequestStatus(requestId, newStatus, type)
@@ -12,6 +12,16 @@ export function RequestsList() {
             console.log('Status updated successfully')
         } else {
             alert('فشل تحديث الحالة: ' + result.error)
+        }
+    }
+
+    const handleDelete = async (requestId) => {
+        const result = await deleteRequest(requestId)
+
+        if (result.success) {
+            console.log('Request deleted successfully')
+        } else {
+            alert('فشل حذف الطلب: ' + result.error)
         }
     }
 
@@ -56,6 +66,7 @@ export function RequestsList() {
                         key={request.id}
                         request={request}
                         onStatusChange={handleStatusChange}
+                        onDelete={handleDelete}
                     />
                 ))}
             </div>
